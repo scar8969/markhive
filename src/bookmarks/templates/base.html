@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}bookmarks{% endblock %}</title>
+<style>
+:root{--bg:#0f1117;--panel:#171a22;--line:#262b36;--ink:#eceef4;--dim:#8b93a7;--accent:#7c9cff;--ok:#4fd18b;--no:#f0706e}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.55 -apple-system,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column;min-height:100vh}
+.top{display:flex;align-items:center;gap:16px;padding:12px 22px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.top .brand{font-weight:700;color:var(--accent);text-decoration:none}
+.top nav{display:flex;gap:14px}
+.top nav a{color:var(--dim);text-decoration:none;padding:3px 0;border-bottom:2px solid transparent}
+.top nav a.on,.top nav a:hover{color:var(--ink);border-bottom-color:var(--accent)}
+.top .bar{margin-left:auto;display:flex;gap:6px}
+main{flex:1;width:100%;max-width:1120px;margin:0 auto;padding:22px;display:grid;grid-template-columns:1fr 240px;gap:18px;align-items:start}
+@media(max-width:860px){main{grid-template-columns:1fr}}
+h1{font-size:20px;margin-bottom:3px}
+p.sub{color:var(--dim);margin-bottom:18px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:9px;margin-bottom:16px}
+.panel .hd{padding:10px 15px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.panel .hd h2{font-size:12px;text-transform:uppercase;letter-spacing:.7px;color:var(--dim)}
+.panel .bd{padding:15px}
+.card{display:flex;gap:12px;padding:13px 15px;border-bottom:1px solid #1e222c}
+.card:last-child{border-bottom:0}
+.card .fav{width:18px;height:18px;flex:0 0 18px;margin-top:3px}
+.card h3{font-size:14px;font-weight:600;margin-bottom:2px}
+.card h3 a{color:var(--ink);text-decoration:none}
+.card h3 a:hover{color:var(--accent)}
+.card .u{color:var(--dim);font-size:12px;word-break:break-all}
+.card .d{color:#b6bdcc;font-size:12.5px;margin-top:5px}
+.card .foot{display:flex;gap:8px;align-items:center;margin-top:7px;flex-wrap:wrap}
+input,select,textarea{background:#0c0e14;border:1px solid var(--line);border-radius:6px;color:var(--ink);padding:7px 10px;font:inherit;font-size:13px}
+input[type=search],input[type=text],input[type=url]{min-width:0}
+.btn{background:var(--accent);color:#0b1020;border:0;border-radius:6px;padding:7px 13px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block}
+.btn:hover{filter:brightness(1.08)}
+.btn.q{background:transparent;border:1px solid var(--line);color:var(--ink);font-weight:500}
+.btn.dgr{background:transparent;border:1px solid var(--no);color:var(--no);font-weight:500}
+.tag{display:inline-block;background:rgba(124,156,255,.14);color:var(--accent);border-radius:10px;padding:1px 9px;font-size:11px;text-decoration:none}
+.tag.on{background:var(--accent);color:#0b1020}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row form{display:flex;gap:6px;align-items:center;margin:0}
+.side a{display:flex;justify-content:space-between;gap:8px;padding:6px 9px;border-radius:6px;color:var(--dim);text-decoration:none;font-size:13px}
+.side a:hover{background:#1d212b;color:var(--ink)}
+.side a.on{background:#1d212b;color:var(--ink);border-left:2px solid var(--accent)}
+.side .n{color:var(--dim);font-size:12px}
+.flash{padding:10px 15px;border-radius:7px;margin-bottom:16px;font-size:13px}
+.flash.error{background:rgba(240,112,110,.12);border:1px solid var(--no);color:var(--no)}
+.flash.success,.flash.message{background:rgba(79,209,139,.12);border:1px solid var(--ok);color:var(--ok)}
+.empty{color:var(--dim);padding:16px 15px}
+footer{padding:14px 22px;border-top:1px solid var(--line);color:var(--dim);font-size:12px;text-align:center}
+footer a{color:var(--dim)}
+.mono{font-family:ui-monospace,Consolas,monospace;font-size:12px}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="{{ url_for('index') }}">🔖 bookmarks</a>
+  <nav>
+    <a href="{{ url_for('index') }}"{% if request.endpoint == 'index' and not request.args.get('tag') %} class="on"{% endif %}>Library</a>
+    <a href="{{ url_for('export') }}">Export HTML</a>
+    <a href="{{ url_for('bm.list_bookmarks') }}">JSON API</a>
+  </nav>
+  <div class="bar">
+    <form method="get" action="{{ url_for('index') }}" class="row">
+      <input type="search" name="q" value="{{ request.args.get('q', '') }}" placeholder="search title, notes, text…" style="width:230px">
+      <button class="btn" type="submit">Search</button>
+    </form>
+  </div>
+</header>
+<main>
+  <section>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </section>
+  <aside>
+    <div class="panel side">
+      <div class="hd"><h2>Tags</h2></div>
+      <div class="bd" style="padding:6px">
+        <a href="{{ url_for('index') }}"{% if not tag %} class="on"{% endif %}>All bookmarks <span class="n">{{ stats.bookmarks }}</span></a>
+        {% for t in all_tags %}
+          <a href="{{ url_for('index', tag=t.name) }}"{% if tag == t.name %} class="on"{% endif %}>{{ t.name }} <span class="n">{{ t.count }}</span></a>
+        {% else %}
+          <p class="empty" style="padding:8px 9px">No tags yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </aside>
+</main>
+<footer>bookmarks · {{ stats.bookmarks }} bookmark(s) · {{ stats.tags }} tag(s) · <a href="{{ url_for('health') }}">/api/health</a></footer>
+</body>
+</html>

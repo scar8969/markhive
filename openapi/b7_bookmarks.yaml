@@ -1,0 +1,29 @@
+openapi: 3.0.0
+info:
+  title: "🔖 bookmarks"
+  version: 0.1.0
+paths:
+  /api/bookmarks:
+    post:
+      summary: add
+      responses:
+        "200":
+          description: ok
+  /api/bookmarks:
+    get:
+      summary: list+search
+      responses:
+        "200":
+          description: ok
+  /api/bookmarks/<id>:
+    delete:
+      summary: delete
+      responses:
+        "200":
+          description: ok
+  /api/tags:
+    get:
+      summary: tags
+      responses:
+        "200":
+          description: ok

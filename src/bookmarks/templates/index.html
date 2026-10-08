@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Library · bookmarks{% endblock %}
+{% block content %}
+<h1>Library</h1>
+<p class="sub">{{ bookmarks|length }} of {{ stats.bookmarks }} stored bookmark(s){% if q %} matching “{{ q }}”{% endif %}{% if tag %} tagged “{{ tag }}”{% endif %}</p>
+
+<div class="panel">
+  <div class="hd"><h2>Add bookmark</h2></div>
+  <div class="bd">
+    <form method="post" action="{{ url_for('add') }}">
+      <div class="row">
+        <input type="url" name="url" required placeholder="https://example.com/article" style="flex:1;min-width:260px">
+        <input type="text" name="tags" placeholder="tags, comma separated">
+        <button class="btn" type="submit">Fetch &amp; save</button>
+      </div>
+      <input type="text" name="notes" placeholder="note (optional)" style="width:100%;margin-top:8px">
+      <p class="url" style="color:var(--dim);margin-top:8px">Title, description and favicon are fetched from the page. If the page cannot be reached the URL is still saved verbatim.</p>
+    </form>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="hd">
+    <h2>Bookmarks</h2>
+    <span class="row" style="margin-left:auto">
+      <a class="btn q" href="{{ url_for('index') }}">Reset</a>
+      <a class="btn q" href="{{ url_for('export') }}">Export HTML</a>
+    </span>
+  </div>
+  {% if bookmarks %}
+    {% for b in bookmarks %}
+    <div class="card">
+      {% if b.favicon %}<img class="fav" src="{{ b.favicon }}" alt="" loading="lazy">{% endif %}
+      <div style="min-width:0">
+        <h3><a href="{{ b.url }}" rel="noopener noreferrer">{{ b.title or b.url }}</a></h3>
+        <div class="u">{{ b.url }}</div>
+        {% if b.description %}<div class="d">{{ b.description }}</div>{% endif %}
+        {% if b.notes %}<div class="d"><span class="mono">note:</span> {{ b.notes }}</div>{% endif %}
+        <div class="foot">
+          {% for t in b.tags %}<a class="tag{% if tag == t.name %} on{% endif %}" href="{{ url_for('index', tag=t.name) }}">{{ t.name }}</a>{% endfor %}
+          <span class="mono" style="color:var(--dim)">{{ b.created_at.strftime('%Y-%m-%d %H:%M') if b.created_at else '' }}</span>
+          <form method="post" action="{{ url_for('delete', bid=b.id) }}" onsubmit="return confirm('Delete this bookmark?')">
+            <button class="btn dgr" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <p class="empty">{% if q or tag %}Nothing matches this filter.{% else %}No bookmarks stored yet — add one above.{% endif %}</p>
+  {% endif %}
+</div>
+{% endblock %}
