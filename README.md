@@ -66,6 +66,7 @@ Every route below is in [`openapi/markhive.yaml`](openapi/markhive.yaml) and is 
 | Method | Path | What it does |
 | --- | --- | --- |
 | `GET` | `/api/bookmarks` | list+search |
+| `POST` | `/api/bookmarks` | add |
 | `DELETE` | `/api/bookmarks/<id>` | delete |
 | `GET` | `/api/tags` | tags |
 
@@ -99,7 +100,7 @@ These numbers were produced on this checkout by `pytest --cov` and by booting `w
 
 | Signal | Value |
 | --- | --- |
-| Tests | **23 / 23 passed** (2.7 s, exit 0) |
+| Tests | **23 / 23 passed** (1.7 s, exit 0) |
 | Line coverage | **51.2%** — 426 of 782 statements |
 | Source | 15 files / 1,624 lines |
 | Test code | 4 files / 230 lines |
