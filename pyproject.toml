@@ -3,13 +3,13 @@ requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "b7-bookmarks"
+name = "markhive"
 version = "0.1.0"
-description = "A self-hosted bookmark manager. You save a URL, the server fetches the page once and stores the"
+description = "Self-hosted bookmark manager: save a URL, fetch and store the page once, tag and search it."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
-authors = [{ name = "project-skeletons maintainers" }]
+authors = [{ name = "Priyanshu Rout" }]
 keywords = ["flask", "service", "bookmarks"]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -47,7 +47,7 @@ Documentation = "https://example.invalid/bookmarks/docs"
 Issues = "https://example.invalid/bookmarks/issues"
 
 [project.scripts]
-b7-bookmarks = "bookmarks.cli:main"
+markhive = "bookmarks.cli:main"
 
 [tool.setuptools]
 package-dir = { "" = "src" }

@@ -1,4 +1,4 @@
-# bookmarks
+# markhive
 
 > A self-hosted bookmark manager. You save a URL, the server fetches the page once and stores the
 
@@ -6,8 +6,8 @@
 [![python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue)](pyproject.toml)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-b7_bookmarks is a Flask service delivered as an installable, typed, test-covered
-distribution. The business logic is unchanged from the original skeleton; what
+markhive is a Flask service delivered as an installable, typed, test-covered
+distribution. The business logic is unchanged from the original service; what
 is new is the engineering around it: a packaging story, a configuration
 contract, structured observability, operational endpoints, a hardened
 container, and the gates that keep all of that true.
@@ -17,7 +17,7 @@ container, and the gates that keep all of that true.
 ## Quickstart
 
 ```sh
-git clone <your-fork> b7_bookmarks && cd b7_bookmarks
+git clone <your-fork> markhive && cd markhive
 python -m venv .venv
 . .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
@@ -127,7 +127,7 @@ variable, rather than surfacing as a confusing runtime error later.
 | `/api/tags` | GET | JSON |
 | `/api/tags` | T | JSON |
 
-The frozen machine-readable contract is `openapi/b7_bookmarks.yaml`; it is the
+The frozen machine-readable contract is `openapi/markhive.yaml`; it is the
 source of truth for path and method coverage.
 
 ---
@@ -145,9 +145,9 @@ source of truth for path and method coverage.
 │   ├── ARCHITECTURE.md
 │   └── OPERATIONS.md
 ├── openapi
-│   └── b7_bookmarks.yaml
+│   └── markhive.yaml
 ├── schema
-│   └── b7_bookmarks.sql
+│   └── markhive.sql
 ├── src
 │   └── bookmarks
 │       ├── bm
@@ -165,7 +165,7 @@ source of truth for path and method coverage.
 │       └── py.typed
 ├── tests
 │   ├── conftest.py
-│   ├── test_b7_bookmarks.py
+│   ├── test_markhive.py
 │   ├── test_config.py
 │   └── test_ops.py
 ├── .dockerignore

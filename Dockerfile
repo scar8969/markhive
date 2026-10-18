@@ -34,7 +34,7 @@ RUN groupadd --system --gid 1001 app \
 WORKDIR /app
 
 COPY --from=builder /wheels /wheels
-RUN python -m pip install --no-cache-dir --no-index --find-links=/wheels b7-bookmarks \
+RUN python -m pip install --no-cache-dir --no-index --find-links=/wheels markhive \
  && rm -rf /wheels \
  && mkdir -p /var/lib/bookmarks/instance /var/lib/bookmarks/log \
  && chown -R app:app /var/lib/bookmarks /app

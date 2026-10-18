@@ -1,4 +1,4 @@
-"""B7 bookmarks — tests. Run: pytest test_b7_bookmarks.py"""
+"""B7 bookmarks — tests. Run: pytest test_markhive.py"""
 import sys, os
 
 import pytest
