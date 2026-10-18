@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -8,6 +9,7 @@ bookmark_tags = db.Table(
     db.Column("bookmark_id", db.Integer, db.ForeignKey("bookmarks.id"), primary_key=True),
     db.Column("tag_id", db.Integer, db.ForeignKey("tags.id"), primary_key=True),
 )
+
 
 class Bookmark(db.Model):
     __tablename__ = "bookmarks"
@@ -20,6 +22,7 @@ class Bookmark(db.Model):
     notes = db.Column(db.Text, default="")
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     tags = db.relationship("Tag", secondary=bookmark_tags, backref="bookmarks")
+
 
 class Tag(db.Model):
     __tablename__ = "tags"

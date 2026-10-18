@@ -1,20 +1,23 @@
 import os
 
+from flask import Flask, Response, flash, jsonify, redirect, render_template, request, url_for
+
+from . import paths
 from .bm.api import bp
 from .bm.fetch import fetch_meta
 from .bm.import_export import export_netscape
 from .bm.search import search as bm_search
 from .models import Bookmark, Tag, db
 
-from flask import Flask, Response, flash, jsonify, redirect, render_template, request, url_for
-from . import paths
-
 # templates/ is copied to the project root by the build, next to web/.
+
 
 def build_app():
     """Build the application: configuration, database, then routes."""
     app = Flask(__name__, template_folder=str(paths.TEMPLATES_DIR))
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("BOOKMARKS_DB_URI", "sqlite:///" + str(paths.INSTANCE_DIR / "bookmarks.db"))
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+        "BOOKMARKS_DB_URI", "sqlite:///" + str(paths.INSTANCE_DIR / "bookmarks.db")
+    )
     app.config["SECRET_KEY"] = os.environ.get("BOOKMARKS_SECRET_KEY", "bookmarks-local")
     db.init_app(app)
     with app.app_context():
@@ -29,7 +32,9 @@ def build_app():
         return {"bookmarks": Bookmark.query.count(), "tags": Tag.query.count()}
 
     def _all_tags():
-        return [{"name": t.name, "count": len(t.bookmarks)} for t in Tag.query.order_by(Tag.name).all()]
+        return [
+            {"name": t.name, "count": len(t.bookmarks)} for t in Tag.query.order_by(Tag.name).all()
+        ]
 
     @app.get("/")
     def index():
@@ -37,7 +42,11 @@ def build_app():
         tag = (request.args.get("tag") or "").strip()
         if q:
             ids = [row["id"] for row in bm_search(q)]
-            query = Bookmark.query.filter(Bookmark.id.in_(ids)) if ids else Bookmark.query.filter(db.false())
+            query = (
+                Bookmark.query.filter(Bookmark.id.in_(ids))
+                if ids
+                else Bookmark.query.filter(db.false())
+            )
         else:
             query = Bookmark.query
         if tag:
@@ -57,8 +66,14 @@ def build_app():
             flash("Already saved: %s" % url, "error")
             return redirect(url_for("index"))
         meta = fetch_meta(url)
-        bm = Bookmark(url=url, title=meta.get("title") or url, description=meta.get("description", ""),
-                      favicon=meta.get("favicon", ""), snapshot=meta.get("snapshot", ""), notes=notes)
+        bm = Bookmark(
+            url=url,
+            title=meta.get("title") or url,
+            description=meta.get("description", ""),
+            favicon=meta.get("favicon", ""),
+            snapshot=meta.get("snapshot", ""),
+            notes=notes,
+        )
         names = [n.strip() for n in raw_tags.split(",") if n.strip()]
         seen = set()
         with db.session.no_autoflush:
@@ -90,19 +105,27 @@ def build_app():
 
     @app.get("/export.html")
     def export():
-        rows = [{"url": b.url, "title": b.title or b.url, "tags": [t.name for t in b.tags]}
-                for b in Bookmark.query.order_by(Bookmark.id).all()]
-        return Response(export_netscape(rows), mimetype="text/html",
-                        headers={"Content-Disposition": "attachment; filename=bookmarks.html"})
+        rows = [
+            {"url": b.url, "title": b.title or b.url, "tags": [t.name for t in b.tags]}
+            for b in Bookmark.query.order_by(Bookmark.id).all()
+        ]
+        return Response(
+            export_netscape(rows),
+            mimetype="text/html",
+            headers={"Content-Disposition": "attachment; filename=bookmarks.html"},
+        )
 
     @app.get("/api/health")
     def health():
-        return jsonify({"status": "ok", "bookmarks": Bookmark.query.count(), "tags": Tag.query.count()})
+        return jsonify(
+            {"status": "ok", "bookmarks": Bookmark.query.count(), "tags": Tag.query.count()}
+        )
 
     # python -m web.app
     if __name__ == "__main__":
         app.run(host="127.0.0.1", port=5000, debug=False)
 
     return app
+
 
 app = build_app()

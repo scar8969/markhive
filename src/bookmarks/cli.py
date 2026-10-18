@@ -4,9 +4,11 @@ Flask, SQLAlchemy, requests and BeautifulSoup are imported lazily inside the
 function that needs them, so ``python cli.py --help`` works on a machine where
 the web dependencies are not installed yet.
 """
+
 import argparse
 import json
 import sys
+
 
 def _app():
     """Import the Flask app and push an application context for the caller."""
@@ -14,19 +16,25 @@ def _app():
         from ._app import app
     except ModuleNotFoundError as exc:
         print("error: cannot import the application (%s)" % exc, file=sys.stderr)
-        print("hint: install the requirements first: pip install -r requirements.txt", file=sys.stderr)
+        print(
+            "hint: install the requirements first: pip install -r requirements.txt", file=sys.stderr
+        )
         raise SystemExit(2)
     ctx = app.app_context()
     ctx.push()
     return ctx
 
+
 def _models():
     from .models import Bookmark, Tag, db
+
     return Bookmark, Tag, db
+
 
 def _tag(Tag, name):
     """Reuse an existing tag row instead of creating a duplicate name."""
     return Tag.query.filter_by(name=name).first() or Tag(name=name)
+
 
 def cmd_list(args):
     ctx = _app()
@@ -37,8 +45,20 @@ def cmd_list(args):
             query = query.filter(Bookmark.tags.any(Tag.name == args.tag))
         rows = query.order_by(Bookmark.id.desc()).limit(args.limit).all()
         if args.json:
-            print(json.dumps([{"id": b.id, "title": b.title, "url": b.url,
-                              "tags": [t.name for t in b.tags]} for b in rows], indent=2))
+            print(
+                json.dumps(
+                    [
+                        {
+                            "id": b.id,
+                            "title": b.title,
+                            "url": b.url,
+                            "tags": [t.name for t in b.tags],
+                        }
+                        for b in rows
+                    ],
+                    indent=2,
+                )
+            )
         else:
             for b in rows:
                 print("%-4s %-48s %s" % (b.id, b.title[:48], b.url))
@@ -47,8 +67,10 @@ def cmd_list(args):
         ctx.pop()
     return 0
 
+
 def cmd_add(args):
     from .bm.fetch import fetch_meta
+
     ctx = _app()
     try:
         Bookmark, Tag, db = _models()
@@ -56,10 +78,13 @@ def cmd_add(args):
             print("error: already saved: %s" % args.url, file=sys.stderr)
             return 1
         meta = fetch_meta(args.url)
-        bm = Bookmark(url=args.url, title=meta.get("title") or args.url,
-                      description=meta.get("description", ""),
-                      favicon=meta.get("favicon", ""),
-                      snapshot=meta.get("snapshot", ""))
+        bm = Bookmark(
+            url=args.url,
+            title=meta.get("title") or args.url,
+            description=meta.get("description", ""),
+            favicon=meta.get("favicon", ""),
+            snapshot=meta.get("snapshot", ""),
+        )
         for name in args.tags or []:
             bm.tags.append(_tag(Tag, name.strip()))
         db.session.add(bm)
@@ -69,11 +94,13 @@ def cmd_add(args):
         ctx.pop()
     return 0
 
+
 def cmd_search(args):
     # search() touches db.session, so it needs the same pushed app context the
     # other subcommands use -- without it SQLAlchemy raises
     # "RuntimeError: Working outside of application context".
     from .bm.search import search
+
     ctx = _app()
     try:
         rows = search(args.query, tag=args.tag or "", limit=args.limit)
@@ -91,6 +118,7 @@ def cmd_search(args):
         return 1
     return 0
 
+
 def cmd_tags(args):
     ctx = _app()
     try:
@@ -105,6 +133,7 @@ def cmd_tags(args):
     finally:
         ctx.pop()
     return 0
+
 
 def cmd_delete(args):
     ctx = _app()
@@ -122,8 +151,10 @@ def cmd_delete(args):
         ctx.pop()
     return 0
 
+
 def cmd_import(args):
     from .bm.import_export import parse_netscape
+
     ctx = _app()
     try:
         Bookmark, Tag, db = _models()
@@ -144,13 +175,17 @@ def cmd_import(args):
         ctx.pop()
     return 0
 
+
 def cmd_export(args):
     from .bm.import_export import export_netscape
+
     ctx = _app()
     try:
         Bookmark, Tag, db = _models()
-        rows = [{"url": b.url, "title": b.title, "tags": [t.name for t in b.tags]}
-                for b in Bookmark.query.order_by(Bookmark.id).all()]
+        rows = [
+            {"url": b.url, "title": b.title, "tags": [t.name for t in b.tags]}
+            for b in Bookmark.query.order_by(Bookmark.id).all()
+        ]
         html = export_netscape(rows)
         if args.out:
             with open(args.out, "w", encoding="utf-8") as fh:
@@ -162,6 +197,7 @@ def cmd_export(args):
         ctx.pop()
     return 0
 
+
 def cmd_serve(args):
     try:
         from ._app import app
@@ -170,6 +206,7 @@ def cmd_serve(args):
         return 2
     app.run(host=args.host, port=args.port, debug=args.debug)
     return 0
+
 
 def build_parser():
     p = argparse.ArgumentParser(prog="bm", description="Bookmarks service CLI")
@@ -191,8 +228,11 @@ def build_parser():
     s.add_argument("--tag", help="restrict to a tag")
     s.add_argument("--limit", type=int, default=50, help="max hits (default 50)")
     s.add_argument("--json", action="store_true", help="emit JSON")
-    s.add_argument("--quiet", action="store_true",
-                   help="exit 0 even when nothing matches (by default no hits is exit 1)")
+    s.add_argument(
+        "--quiet",
+        action="store_true",
+        help="exit 0 even when nothing matches (by default no hits is exit 1)",
+    )
     s.set_defaults(func=cmd_search)
 
     s = sub.add_parser("tags", help="list tags with bookmark counts")
@@ -217,6 +257,7 @@ def build_parser():
     s.add_argument("--debug", action="store_true")
     s.set_defaults(func=cmd_serve)
     return p
+
 
 def main(argv=None):
     parser = build_parser()

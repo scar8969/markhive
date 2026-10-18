@@ -1,4 +1,5 @@
 """bookmarks -- A self-hosted bookmark manager."""
+
 from __future__ import annotations
 
 __version__ = "0.1.0"

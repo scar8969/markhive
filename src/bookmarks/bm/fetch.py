@@ -1,5 +1,8 @@
-import urllib.request, re
+import re
+import urllib.request
+
 from bs4 import BeautifulSoup
+
 
 def fetch_meta(url):
     try:
@@ -18,5 +21,9 @@ def fetch_meta(url):
     icon = soup.find("link", rel=re.compile("icon", re.I))
     if icon:
         favicon = urllib.parse.urljoin(url, icon.get("href", ""))
-    return {"title": title[:200], "description": desc[:500], "favicon": favicon,
-            "snapshot": soup.get_text()[:2000]}
+    return {
+        "title": title[:200],
+        "description": desc[:500],
+        "favicon": favicon,
+        "snapshot": soup.get_text()[:2000],
+    }

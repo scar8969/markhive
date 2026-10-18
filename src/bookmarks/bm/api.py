@@ -1,10 +1,11 @@
-from .fetch import fetch_meta
-from .search import search
-from ..models import Bookmark, Tag, db
-
 from flask import Blueprint, jsonify, request
 
+from ..models import Bookmark, Tag, db
+from .fetch import fetch_meta
+from .search import search
+
 bp = Blueprint("bm", __name__)
+
 
 @bp.post("/api/bookmarks")
 def add_bookmark():
@@ -15,9 +16,14 @@ def add_bookmark():
     if Bookmark.query.filter_by(url=url).first():
         return jsonify({"error": "duplicate"}), 409
     meta = fetch_meta(url)
-    bm = Bookmark(url=url, title=meta.get("title", url),
-                  description=meta.get("description", ""), favicon=meta.get("favicon", ""),
-                  snapshot=meta.get("snapshot", ""), notes=d.get("notes", ""))
+    bm = Bookmark(
+        url=url,
+        title=meta.get("title", url),
+        description=meta.get("description", ""),
+        favicon=meta.get("favicon", ""),
+        snapshot=meta.get("snapshot", ""),
+        notes=d.get("notes", ""),
+    )
     raw = d.get("tags", [])
     if isinstance(raw, str):
         raw = raw.split(",")
@@ -37,6 +43,7 @@ def add_bookmark():
     db.session.commit()
     return jsonify({"id": bm.id, "title": bm.title})
 
+
 @bp.get("/api/bookmarks")
 def list_bookmarks():
     q = request.args.get("q", "")
@@ -47,10 +54,18 @@ def list_bookmarks():
         query = query.filter(Bookmark.id.in_(ids))
     if tag:
         query = query.filter(Bookmark.tags.any(Tag.name == tag))
-    rows = [{"id": b.id, "title": b.title, "url": b.url,
-             "tags": [t.name for t in b.tags], "created_at": b.created_at.isoformat() if b.created_at else ""}
-            for b in query.order_by(Bookmark.id.desc()).limit(100).all()]
+    rows = [
+        {
+            "id": b.id,
+            "title": b.title,
+            "url": b.url,
+            "tags": [t.name for t in b.tags],
+            "created_at": b.created_at.isoformat() if b.created_at else "",
+        }
+        for b in query.order_by(Bookmark.id.desc()).limit(100).all()
+    ]
     return jsonify({"bookmarks": rows})
+
 
 @bp.delete("/api/bookmarks/<int:bid>")
 def delete(bid):
@@ -58,6 +73,7 @@ def delete(bid):
     db.session.delete(b)
     db.session.commit()
     return jsonify({"status": "deleted"})
+
 
 @bp.get("/api/tags")
 def tags():
