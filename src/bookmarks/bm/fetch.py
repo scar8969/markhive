@@ -1,4 +1,5 @@
 import re
+import urllib.parse
 import urllib.request
 
 from bs4 import BeautifulSoup
@@ -12,11 +13,11 @@ def fetch_meta(url):
     except Exception:
         return {"title": url, "description": "", "favicon": "", "snapshot": ""}
     soup = BeautifulSoup(html, "html.parser")
-    title = soup.title.string.strip() if soup.title else url
+    title = (soup.title.string or "").strip() if soup.title else url
     desc = ""
     m = soup.find("meta", attrs={"name": "description"})
     if m:
-        desc = m.get("content", "")
+        desc = str(m.get("content", ""))
     favicon = ""
     icon = soup.find("link", rel=re.compile("icon", re.I))
     if icon:

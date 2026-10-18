@@ -5,7 +5,7 @@ def parse_netscape(html):
     soup = BeautifulSoup(html, "html.parser")
     out = []
     for a in soup.find_all("a", href=True):
-        tags = (a.get("tags") or "").split(",")
+        tags = str(a.get("tags") or "").split(",")
         out.append(
             {
                 "url": a["href"],
