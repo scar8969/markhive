@@ -1,6 +1,6 @@
-from datetime import datetime
-
 from flask_sqlalchemy import SQLAlchemy
+
+from .clock import utcnow
 
 db = SQLAlchemy()
 
@@ -20,7 +20,7 @@ class Bookmark(db.Model):
     favicon = db.Column(db.String(512), default="")
     snapshot = db.Column(db.Text, default="")
     notes = db.Column(db.Text, default="")
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=utcnow)
     tags = db.relationship("Tag", secondary=bookmark_tags, backref="bookmarks")
 
 
