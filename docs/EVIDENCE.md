@@ -4,7 +4,7 @@ Every line below was produced by a command run against this exact checkout, on t
 
 | | |
 | --- | --- |
-| Generated | 2026-10-19 02:58 |
+| Generated | 2026-10-19 09:42 |
 | Python | 3.14.7 |
 | Platform | Windows 11 |
 
@@ -15,7 +15,7 @@ python -m pytest -q
 ```
 
 - exit code **0**
-- 23 passed in 1.19s
+- 23 passed in 1.34s
 
 ## Static gates
 
@@ -36,6 +36,25 @@ The application was imported through `wsgi.py` and each GET path declared in `op
 | 200 | `/api/tags` | 12 | application/json |
 
 2 paths walked, 0 of them raised or answered 5xx.
+
+## CLI
+
+```
+usage: bm [-h] command ...
+
+Bookmarks service CLI
+
+positional arguments:
+  command
+    list      list bookmarks
+    add       save a URL and fetch its metadata
+    search    full-text search over saved bookmarks
+    tags      list tags with bookmark counts
+    delete    delete a bookmark by id
+    import    import a Netscape bookmarks.html file
+    export    export bookmarks as Netscape HTML
+    serve     run the development server
+```
 
 ## Screenshots
 
